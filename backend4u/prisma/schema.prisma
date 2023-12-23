@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  userID     Int      @id @default(autoincrement())
+  username   String
+  email      String
+  password   String
+  coffees    Coffees[]
+  createdCoffees UserCreatedCoffees[]
+  favorites  Favorites[]
+  orders     Orders[]
+}
+
+model Coffees {
+  coffeeID     Int      @id @default(autoincrement())
+  userID       Int
+  user         Users    @relation(fields: [userID], references: [userID])
+  coffee_title String
+  description  String
+  size         String
+  favorites    Favorites[] //inverser one-to-many many-to-one
+  order        Orders[]
+}
+
+model UserCreatedCoffees {
+  userCreatedCoffeeID   Int      @id @default(autoincrement())
+  userID                Int
+  user                  Users    @relation(fields: [userID], references: [userID])
+  custom_coffee_title   String
+  description           String
+  size                  String
+  flavorID              Int
+  toppingID             Int
+  milkTypeID            Int
+  flavors               Flavors  @relation(fields: [flavorID], references: [flavorID])
+  toppings              Toppings @relation(fields: [toppingID], references: [toppingID])
+  milkTypes             MilkTypes @relation(fields: [milkTypeID], references: [milkTypeID])
+  favorites             Favorites[]
+  order                 Orders[]
+}
+
+model Flavors {
+  flavorID     Int      @id @default(autoincrement())
+  flavor_name  String
+  createdCoffees UserCreatedCoffees[]
+}
+
+model Toppings {
+  toppingID      Int      @id @default(autoincrement())
+  topping_name   String
+  createdCoffees UserCreatedCoffees[]
+}
+
+model MilkTypes {
+  milkTypeID    Int      @id @default(autoincrement())
+  milk_type     String
+  createdCoffees UserCreatedCoffees[]
+}
+
+model Favorites {
+  favoriteID           Int      @id @default(autoincrement())
+  userID               Int
+  user                 Users    @relation(fields: [userID], references: [userID])
+  CoffeeID             Int
+  coffee               Coffees  @relation(fields: [CoffeeID], references: [coffeeID])
+  userCreatedCoffeeID  Int
+  userCreatedCoffee    UserCreatedCoffees @relation(fields: [userCreatedCoffeeID], references: [userCreatedCoffeeID])
+}
+
+model Orders {
+  orderID               Int      @id @default(autoincrement())
+  userID                Int
+  user                  Users    @relation(fields: [userID], references: [userID])
+  coffeeID              Int
+  coffee                Coffees  @relation(fields: [coffeeID], references: [coffeeID])
+  userCreatedCoffeeID   Int
+  userCreatedCoffee     UserCreatedCoffees @relation(fields: [userCreatedCoffeeID], references: [userCreatedCoffeeID])
+  quantity              Int
+  totalPrice            Float
+  orderDate             DateTime
+  status                String
+}
+
